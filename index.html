@@ -53,6 +53,47 @@
         .req-block {
             transition: transform 0.2s ease, filter 0.2s ease;
         }
+
+        /* Focus Mode Transitions */
+        .sidebar-transition {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s ease,
+                padding 0.5s ease,
+                margin 0.5s ease;
+            overflow: hidden;
+        }
+
+        .main-content-transition {
+            transition: grid-column 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (min-width: 768px) {
+            .focused-view .sidebar-transition {
+                width: 0;
+                opacity: 0;
+                padding-left: 0;
+                padding-right: 0;
+                border-right-width: 0;
+            }
+
+            .focused-view .main-content-transition {
+                grid-column: span 12 / span 12;
+            }
+        }
+
+        /* Portrait Bother Mode */
+        @media (orientation: portrait) {
+            .portrait-bother {
+                transform: rotate(90deg) scale(0.8);
+                transform-origin: center center;
+                margin: 5rem 0;
+                transition: transform 0.3s ease;
+            }
+
+            .portrait-warning {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 
@@ -88,9 +129,9 @@
             </div>
         </header>
 
-        <div class="grid md:grid-cols-12 gap-0">
+        <div id="main-grid" class="grid md:grid-cols-12 gap-0">
             <!-- Sidebar -->
-            <div class="md:col-span-4 p-10 border-r border-slate-100 bg-slate-50/40 space-y-10">
+            <div class="md:col-span-4 p-10 border-r border-slate-100 bg-slate-50/40 space-y-10 sidebar-transition">
                 <h2
                     class="text-sm font-black mb-4 text-slate-800 uppercase tracking-widest border-b pb-2 tracking-tighter">
                     Business Case Projetado</h2>
@@ -133,15 +174,25 @@
             </div>
 
             <!-- Main Content -->
-            <div class="md:col-span-8 p-10 space-y-6 relative pb-44">
-                <div class="flex justify-between items-center mb-10">
+            <div id="chart-focus-area"
+                class="md:col-span-8 p-10 space-y-6 relative pb-44 main-content-transition origin-left">
+                <!-- Portrait Warning -->
+                <div
+                    class="hidden portrait-warning bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-center mb-6 animate-pulse">
+                    <p
+                        class="text-xs font-black uppercase italic tracking-widest flex items-center justify-center gap-2">
+                        <i data-lucide="rotate-cw" size="16"></i> Gire para Landscape para melhor visualização
+                    </p>
+                </div>
+
+                <div class="flex justify-between items-center mb-10 transition-opacity">
                     <h3 class="text-sm font-bold uppercase text-slate-400 flex items-center gap-2 tracking-widest">
                         <i data-lucide="activity" size="16"></i> Timeline: Retenção Residual vs True Zero
                     </h3>
                 </div>
 
                 <div
-                    class="relative border border-slate-100 rounded-xl p-4 pt-24 pb-12 bg-slate-50/30 shadow-inner overflow-visible">
+                    class="relative border border-slate-100 rounded-xl p-4 pt-24 pb-12 bg-slate-50/30 shadow-inner overflow-visible portrait-bother">
                     <!-- Background Grid -->
                     <div class="absolute inset-0 flex justify-between px-6 pointer-events-none opacity-[0.03]">
                         <div class="h-full w-px bg-black"></div>
@@ -470,6 +521,31 @@
                 if (tt) tt.remove();
             });
         });
+
+        // Focus Mode Logic
+        const mainGrid = document.getElementById('main-grid');
+        const focusArea = document.getElementById('chart-focus-area');
+
+        const enableFocus = () => {
+            if (window.innerWidth >= 768 && window.matchMedia("(orientation: landscape)").matches) {
+                mainGrid.classList.add('focused-view');
+            }
+        };
+
+        const disableFocus = () => {
+            mainGrid.classList.remove('focused-view');
+        };
+
+        focusArea.addEventListener('mouseenter', enableFocus);
+        focusArea.addEventListener('mouseleave', disableFocus);
+        focusArea.addEventListener('touchstart', (e) => {
+            enableFocus();
+            // Prevent hover from getting stuck on touch devices
+            setTimeout(disableFocus, 5000);
+        });
+
+        // Ensure Lucide updates for new icons
+        lucide.createIcons();
     </script>
 </body>
 
