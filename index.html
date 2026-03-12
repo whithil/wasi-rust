@@ -56,28 +56,49 @@
 
         /* Focus Mode Transitions */
         .sidebar-transition {
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.4s ease,
-                padding 0.5s ease,
-                margin 0.5s ease;
-            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 33.3333%;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .focused-view .sidebar-transition {
+            width: 0;
+            opacity: 0;
+            transform: translateX(-20px);
+            padding-left: 0;
+            padding-right: 0;
+            margin-right: 0;
+            pointer-events: none;
         }
 
         .main-content-transition {
-            transition: grid-column 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            flex: 1;
+            z-index: 10;
         }
 
-        @media (min-width: 768px) {
-            .focused-view .sidebar-transition {
-                width: 0;
-                opacity: 0;
-                padding-left: 0;
-                padding-right: 0;
-                border-right-width: 0;
+        .focused-view .main-content-transition {
+            box-shadow: -20px 0 50px -10px rgba(0, 0, 0, 0.05);
+        }
+
+        #focus-trigger {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 66.6666%;
+            height: 100%;
+            z-index: 50;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 767px) {
+            .sidebar-transition {
+                width: 100%;
             }
 
-            .focused-view .main-content-transition {
-                grid-column: span 12 / span 12;
+            #focus-trigger {
+                display: none;
             }
         }
 
@@ -136,9 +157,12 @@
             </div>
         </header>
 
-        <div id="main-grid" class="grid md:grid-cols-12 gap-0">
+        <div id="main-grid" class="flex flex-col md:flex-row gap-0 relative">
+            <!-- Stable Focus Trigger (De-coupled from layout shifts) -->
+            <div id="focus-trigger"></div>
+
             <!-- Sidebar -->
-            <div class="md:col-span-4 p-10 border-r border-slate-100 bg-slate-50/40 space-y-10 sidebar-transition">
+            <div class="p-10 border-r border-slate-100 bg-slate-50/40 space-y-10 sidebar-transition overflow-hidden">
                 <h2
                     class="text-sm font-black mb-4 text-slate-800 uppercase tracking-widest border-b pb-2 tracking-tighter">
                     Business Case Projetado</h2>
@@ -181,8 +205,7 @@
             </div>
 
             <!-- Main Content -->
-            <div id="chart-focus-area"
-                class="md:col-span-8 p-10 space-y-6 relative pb-44 main-content-transition origin-left">
+            <div id="chart-focus-area" class="p-10 space-y-6 relative pb-44 main-content-transition bg-white">
                 <!-- Portrait Warning -->
                 <div
                     class="hidden portrait-warning bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-center mb-6 animate-pulse">
@@ -529,9 +552,9 @@
             });
         });
 
-        // Focus Mode Logic
+        // Focus Mode Logic (Refined to prevent flickering)
         const mainGrid = document.getElementById('main-grid');
-        const focusArea = document.getElementById('chart-focus-area');
+        const focusTrigger = document.getElementById('focus-trigger');
 
         const enableFocus = () => {
             if (window.innerWidth >= 768 && window.matchMedia("(orientation: landscape)").matches) {
@@ -543,13 +566,17 @@
             mainGrid.classList.remove('focused-view');
         };
 
-        focusArea.addEventListener('mouseenter', enableFocus);
-        focusArea.addEventListener('mouseleave', disableFocus);
-        focusArea.addEventListener('touchstart', (e) => {
-            enableFocus();
-            // Prevent hover from getting stuck on touch devices
-            setTimeout(disableFocus, 5000);
-        });
+        focusTrigger.addEventListener('mouseenter', enableFocus);
+        focusTrigger.addEventListener('mouseleave', disableFocus);
+
+        // Touch support for mobile landscape focus
+        focusTrigger.addEventListener('touchstart', (e) => {
+            if (mainGrid.classList.contains('focused-view')) {
+                disableFocus();
+            } else {
+                enableFocus();
+            }
+        }, { passive: true });
 
         // Ensure Lucide updates for new icons
         lucide.createIcons();
