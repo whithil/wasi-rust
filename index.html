@@ -580,13 +580,29 @@
         mainGrid.addEventListener('mousemove', handleFocus);
         mainGrid.addEventListener('mouseleave', () => mainGrid.classList.remove('focused-view'));
 
-        // Mobile touch toggle
+        // Mobile touch toggle (with tap-vs-scroll detection & logo exclusion)
+        let touchStartY = 0;
         mainGrid.addEventListener('touchstart', (e) => {
             if (window.innerWidth < 768) return;
-            const rect = mainGrid.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            if (touchX > rect.width * 0.35) {
-                mainGrid.classList.toggle('focused-view');
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        mainGrid.addEventListener('touchend', (e) => {
+            if (window.innerWidth < 768) return;
+
+            // Ignore logo-touching events for focus-toggle
+            if (e.target.closest('img')) return;
+
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaY = Math.abs(touchEndY - touchStartY);
+
+            // Only toggle if it was a deliberate tap (minimal vertical movement)
+            if (deltaY < 10) {
+                const rect = mainGrid.getBoundingClientRect();
+                const touchX = e.changedTouches[0].clientX - rect.left;
+                if (touchX > rect.width * 0.35) {
+                    mainGrid.classList.toggle('focused-view');
+                }
             }
         }, { passive: true });
 
