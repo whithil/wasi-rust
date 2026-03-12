@@ -83,23 +83,14 @@
             z-index: 20;
         }
 
-        #focus-trigger {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 66.6666%;
-            height: 100%;
-            z-index: 50;
-            pointer-events: auto;
+        #main-grid {
+            position: relative;
+            overflow: hidden;
         }
 
         @media (max-width: 767px) {
             .sidebar-transition {
                 width: 100%;
-            }
-
-            #focus-trigger {
-                display: none;
             }
         }
 
@@ -159,9 +150,6 @@
         </header>
 
         <div id="main-grid" class="flex flex-col md:flex-row gap-0 relative">
-            <!-- Stable Focus Trigger (De-coupled from layout shifts) -->
-            <div id="focus-trigger"></div>
-
             <!-- Sidebar -->
             <div class="p-10 border-r border-slate-100 bg-slate-50/40 space-y-10 sidebar-transition overflow-hidden">
                 <h2
@@ -246,7 +234,10 @@
                         <!-- PHP -->
                         <div class="grid grid-cols-4 items-center gap-4 relative group py-4 px-2 hover:bg-slate-50 rounded-lg transition-colors chart-row"
                             data-type="php">
-                            <span class="text-sm font-mono font-bold uppercase text-slate-400">PHP (Binary)</span>
+                            <div class="flex items-center justify-end h-10 w-24 pr-4">
+                                <img src="https://static.cdnlogo.com/logos/p/79/php.svg" alt="PHP"
+                                    class="h-8 w-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                            </div>
                             <div class="col-span-3 h-5 relative overflow-visible flex items-center">
                                 <svg class="absolute inset-0 w-full h-[80px] -top-[35px] overflow-visible pointer-events-none"
                                     viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -291,7 +282,10 @@
                         <!-- Node -->
                         <div class="grid grid-cols-4 items-center gap-4 relative group py-4 px-2 hover:bg-slate-50 rounded-lg transition-colors chart-row"
                             data-type="node">
-                            <span class="text-sm font-mono font-bold uppercase text-slate-400">Node (V8)</span>
+                            <div class="flex items-center justify-end h-10 w-24 pr-4">
+                                <img src="https://static.cdnlogo.com/logos/n/79/node-js.svg" alt="Node.js"
+                                    class="h-6 w-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                            </div>
                             <div class="col-span-3 h-5 relative overflow-visible flex items-center">
                                 <svg class="absolute inset-0 w-full h-[80px] -top-[35px] overflow-visible pointer-events-none"
                                     viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -311,7 +305,10 @@
                         <!-- Java -->
                         <div class="grid grid-cols-4 items-center gap-4 relative group py-4 px-2 hover:bg-slate-50 rounded-lg transition-colors chart-row"
                             data-type="java">
-                            <span class="text-sm font-mono font-bold uppercase text-slate-400">JVM (Persist)</span>
+                            <div class="flex items-center justify-end h-10 w-24 pr-4">
+                                <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/java.svg" alt="Java"
+                                    class="h-8 w-auto opacity-50 group-hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                            </div>
                             <div class="col-span-3 h-5 relative overflow-visible flex items-center">
                                 <svg class="absolute inset-0 w-full h-[80px] -top-[35px] overflow-visible pointer-events-none"
                                     viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -331,7 +328,14 @@
                         <!-- WASI -->
                         <div class="grid grid-cols-4 items-center gap-4 relative group py-4 px-2 hover:bg-slate-50 rounded-lg transition-colors chart-row"
                             data-type="wasi">
-                            <span class="text-sm font-mono font-bold uppercase text-slate-400">WASI (Lambda)</span>
+                            <div class="flex items-center justify-end h-10 w-24 pr-4">
+                                <div class="relative group">
+                                    <img src="https://wasi.dev/img/wasi.png" alt="WASI"
+                                        class="h-10 w-auto opacity-90 transition-transform group-hover:scale-110">
+                                    <img src="https://static.cdnlogo.com/logos/r/88/rust.svg" alt="Rust"
+                                        class="absolute -top-1 -right-2 h-5 w-5 bg-white rounded-full p-0.5 shadow-sm border border-slate-100 transition-transform group-hover:rotate-12">
+                                </div>
+                            </div>
                             <div class="col-span-3 h-5 relative overflow-visible flex items-center">
                                 <svg class="absolute inset-0 w-full h-[80px] -top-[35px] overflow-visible pointer-events-none"
                                     viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -553,29 +557,36 @@
             });
         });
 
-        // Focus Mode Logic (Refined to prevent flickering)
+        // Focus Mode Logic (Coordinate-based for perfect stability & interactivity)
         const mainGrid = document.getElementById('main-grid');
-        const focusTrigger = document.getElementById('focus-trigger');
 
-        const enableFocus = () => {
-            if (window.innerWidth >= 768 && window.matchMedia("(orientation: landscape)").matches) {
+        const handleFocus = (e) => {
+            if (window.innerWidth < 768 || !window.matchMedia("(orientation: landscape)").matches) {
+                mainGrid.classList.remove('focused-view');
+                return;
+            }
+
+            const rect = mainGrid.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const threshold = rect.width * 0.35; // Hovering past 35% of the total width
+
+            if (mouseX > threshold) {
                 mainGrid.classList.add('focused-view');
+            } else {
+                mainGrid.classList.remove('focused-view');
             }
         };
 
-        const disableFocus = () => {
-            mainGrid.classList.remove('focused-view');
-        };
+        mainGrid.addEventListener('mousemove', handleFocus);
+        mainGrid.addEventListener('mouseleave', () => mainGrid.classList.remove('focused-view'));
 
-        focusTrigger.addEventListener('mouseenter', enableFocus);
-        focusTrigger.addEventListener('mouseleave', disableFocus);
-
-        // Touch support for mobile landscape focus
-        focusTrigger.addEventListener('touchstart', (e) => {
-            if (mainGrid.classList.contains('focused-view')) {
-                disableFocus();
-            } else {
-                enableFocus();
+        // Mobile touch toggle
+        mainGrid.addEventListener('touchstart', (e) => {
+            if (window.innerWidth < 768) return;
+            const rect = mainGrid.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            if (touchX > rect.width * 0.35) {
+                mainGrid.classList.toggle('focused-view');
             }
         }, { passive: true });
 
