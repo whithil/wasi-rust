@@ -63,12 +63,9 @@
         }
 
         .focused-view .sidebar-transition {
-            width: 0;
+            margin-left: -33.3333%;
             opacity: 0;
-            transform: translateX(-20px);
-            padding-left: 0;
-            padding-right: 0;
-            margin-right: 0;
+            transform: translateX(-50px);
             pointer-events: none;
         }
 
@@ -76,10 +73,14 @@
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             flex: 1;
             z-index: 10;
+            background: white;
+            position: relative;
         }
 
         .focused-view .main-content-transition {
-            box-shadow: -20px 0 50px -10px rgba(0, 0, 0, 0.05);
+            box-shadow: -20px 0 60px -10px rgba(0, 0, 0, 0.1);
+            transform: scale(1.005);
+            z-index: 20;
         }
 
         #focus-trigger {
@@ -254,7 +255,7 @@
                                         d="M 0 36 L 25 36 L 25.1 22 L 32.5 8 L 39.5 20 L 40 36 L 65 36 L 65.1 20 L 72 0 L 78 18 L 79.9 22 L 80 36 L 100 36">
                                     </path>
                                 </svg>
-                                <div class="absolute h-6 bg-slate-200 border border-slate-300 text-slate-600 rounded-sm flex items-center justify-center text-[10px] font-bold z-20 cursor-help req-block"
+                                <div class="absolute h-6 bg-slate-200 border border-slate-300 text-slate-600 rounded-sm flex items-center justify-center text-[10px] font-bold z-[60] cursor-help req-block"
                                     style="width: 15%; left: 25%;"
                                     data-tooltip="Spawn Binário: O interpretador é carregado. FPM mantém overhead residual de ~22MB mesmo em idle.">
                                     <div
@@ -269,7 +270,7 @@
                                     </div>
                                     REQ
                                 </div>
-                                <div class="absolute h-6 bg-slate-200 border border-slate-300 text-slate-600 rounded-sm flex items-center justify-center text-[10px] font-bold z-20 cursor-help req-block"
+                                <div class="absolute h-6 bg-slate-200 border border-slate-300 text-slate-600 rounded-sm flex items-center justify-center text-[10px] font-bold z-[60] cursor-help req-block"
                                     style="width: 15%; left: 65%;"
                                     data-tooltip="Isolamento: Cada pedido PHP é um processo distinto que devolve RAM ao sistema no Exit.">
                                     <div
