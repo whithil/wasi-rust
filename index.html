@@ -81,12 +81,19 @@
             }
         }
 
-        /* Portrait Bother Mode */
+        /* Portrait Bother Mode Styling */
         @media (orientation: portrait) {
             .portrait-bother {
-                transform: rotate(90deg) scale(0.8);
-                transform-origin: center center;
-                margin: 5rem 0;
+                width: 90vh;
+                height: 100vw;
+                max-width: none;
+                position: relative;
+                left: 50%;
+                transform: rotate(90deg) translateY(-50%);
+                transform-origin: top left;
+                margin: 2rem 0;
+                /* Adjusted margin for spacing */
+                padding: 1rem;
                 transition: transform 0.3s ease;
             }
 
