@@ -96,18 +96,29 @@
 
         /* Portrait Bother Mode Styling */
         @media (orientation: portrait) {
+            .dashboard-card {
+                overflow: visible !important;
+                touch-action: auto !important;
+            }
+
+            #main-grid {
+                overflow: visible !important;
+            }
+
             .portrait-bother {
-                width: 90vh;
+                width: 110vh;
+                /* Allow it to be slightly larger for better zooming feel */
                 height: 100vw;
                 max-width: none;
                 position: relative;
                 left: 50%;
                 transform: rotate(90deg) translateY(-50%);
                 transform-origin: top left;
-                margin: 2rem 0;
-                /* Adjusted margin for spacing */
+                margin: 4rem 0;
+                /* More space for panning */
                 padding: 1rem;
                 transition: transform 0.3s ease;
+                touch-action: auto;
             }
 
             .portrait-warning {
@@ -119,7 +130,8 @@
 
 <body class="min-h-screen bg-slate-100 text-slate-900 font-sans p-4 md:p-6 flex items-center justify-center">
 
-    <div class="max-w-7xl w-full bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden relative">
+    <div
+        class="max-w-7xl w-full bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden relative dashboard-card">
         <div class="h-2 bg-blue-600 w-full"></div>
 
         <!-- Header -->
